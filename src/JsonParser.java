@@ -7,17 +7,25 @@ import java.util.regex.Pattern;
 
 public class JsonParser {
     private static final Pattern REGEX_ITEMS = Pattern.compile(".*\\[(.+)\\].*");
+    private static final Pattern REGEX_ITEM = Pattern.compile(".*\\{(.+)\\}.*");
     private static final Pattern REGEX_ATRIBUTOS_JSON = Pattern.compile("\"(.+?)\":\"(.*?)\"");
     
     public List<Map<String, String>> parse(final String json) {
 
         final Matcher matcher = REGEX_ITEMS.matcher(json);
-        if (!matcher.find()) {
+        final Matcher itemMatcher = REGEX_ITEM.matcher(json);
+        if (!matcher.find() && !itemMatcher.find()) {
 
             throw new IllegalArgumentException("Não encontrou items.");
         }
 
-        final String[] items = matcher.group(1).split("\\},\\{");
+        String[] items = null;
+        if(matcher.find()) {
+            items = matcher.group(1).split("\\},\\{");
+        } else {
+            items = new String[]{itemMatcher.group()};
+        }
+        
 
         final List<Map<String, String>> dados = new ArrayList<>();
 
